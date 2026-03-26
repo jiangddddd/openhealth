@@ -4,6 +4,7 @@ import Card from "../components/Card.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import { fetchDreamList } from "../services/api.js";
+import { trackDreamEntryClick, trackHistoryItemClick, trackHistoryView } from "../services/tracker.js";
 
 export default function HistoryPage({
   token,
@@ -27,6 +28,7 @@ export default function HistoryPage({
       try {
         const data = await fetchDreamList(token, 1, 20);
         if (active) {
+          trackHistoryView(token);
           setState({ loading: false, error: "", list: data.list || [] });
         }
       } catch (error) {
@@ -75,7 +77,10 @@ export default function HistoryPage({
           title="这里还没有梦境记录"
           description="记录几次后，这些线索会慢慢连起来。"
           buttonText="去记录一个梦"
-          onAction={() => navigate("input")}
+          onAction={() => {
+            trackDreamEntryClick(token, { fromPage: "history", pageName: "history" });
+            navigate("input");
+          }}
         />
       </>
     );
@@ -90,6 +95,7 @@ export default function HistoryPage({
             key={item.dreamRecordId}
             className="list-item"
             onClick={() => {
+              trackHistoryItemClick(token, { dreamRecordId: item.dreamRecordId });
               setSelectedDreamId(String(item.dreamRecordId));
               navigate("result");
             }}

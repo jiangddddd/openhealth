@@ -75,6 +75,7 @@ class User(Base, TimestampMixin):
     orders: Mapped[list["Order"]] = relationship(back_populates="user")
     feedbacks: Mapped[list["Feedback"]] = relationship(back_populates="user")
     prompt_logs: Mapped[list["PromptLog"]] = relationship(back_populates="user")
+    event_logs: Mapped[list["EventLog"]] = relationship(back_populates="user")
 
 
 class DreamRecord(Base, TimestampMixin):
@@ -269,3 +270,22 @@ class PromptLog(Base):
     )
 
     user: Mapped[User | None] = relationship(back_populates="prompt_logs")
+
+
+class EventLog(Base):
+    """用户埋点日志表，记录页面行为与附加上下文。"""
+
+    __tablename__ = "event_logs"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("users.id"), index=True
+    )
+    event_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    page_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    event_payload: Mapped[dict[str, Any] | list[Any] | None] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+
+    user: Mapped[User | None] = relationship(back_populates="event_logs")

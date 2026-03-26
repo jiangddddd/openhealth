@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -71,6 +71,28 @@ class FeedbackCreateRequest(BaseModel):
     targetId: int
     feedbackType: str
     content: str | None = None
+
+
+class EventLogCreateRequest(BaseModel):
+    """提交前端埋点事件的请求体。"""
+
+    eventName: Literal[
+        "home_view",
+        "dream_entry_click",
+        "dream_submit",
+        "dream_result_view",
+        "followup_submit",
+        "followup_result_view",
+        "fortune_view",
+        "history_view",
+        "history_item_click",
+        "membership_view",
+        "payment_click",
+        "payment_success",
+    ]
+    pageName: Literal["home", "input", "result", "history", "membership"]
+    # created_at 已是服务端统一时间戳，这里只保留事件上下文字段。
+    eventPayload: dict[str, Any] | list[Any] | None = None
 
 
 class UserProfileData(BaseModel):

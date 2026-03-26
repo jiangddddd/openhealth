@@ -5,6 +5,7 @@ import Card from "../components/Card.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import TagSelector from "../components/TagSelector.jsx";
 import { submitDream } from "../services/api.js";
+import { trackDreamSubmit } from "../services/tracker.js";
 
 const emotionOptions = ["害怕", "焦虑", "难过", "开心", "迷茫", "平静", "说不上来"];
 const peopleOptions = ["前任", "家人", "朋友", "同事", "陌生人", "没有特别的人"];
@@ -34,11 +35,19 @@ export default function InputPage({
 
     setLoading(true);
     try {
+      const trimmedDreamText = dreamText.trim();
       const data = await submitDream(token, {
-        dreamText: dreamText.trim(),
+        dreamText: trimmedDreamText,
         emotionAfterWaking: emotion[0] || null,
         dreamPeople: people,
         dreamSymbols: symbols,
+      });
+      trackDreamSubmit(token, {
+        dreamRecordId: data.dreamRecordId,
+        dreamTextLength: trimmedDreamText.length,
+        hasEmotion: Boolean(emotion[0]),
+        hasPeople: people.length > 0,
+        hasSymbols: symbols.length > 0,
       });
       setSelectedDreamId(String(data.dreamRecordId));
       showToast("解析完成，正在进入结果页。");

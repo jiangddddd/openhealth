@@ -5,6 +5,7 @@ import EmptyState from "../components/EmptyState.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import Button from "../components/Button.jsx";
 import { fetchDreamList, fetchFortune, fetchProfile } from "../services/api.js";
+import { trackDreamEntryClick, trackFortuneView, trackHomeView } from "../services/tracker.js";
 
 function DreamSummary({ item, onOpen }) {
   return (
@@ -30,8 +31,16 @@ export default function HomePage({
   navigate,
   openLogin,
   setSelectedDreamId,
+  previousRoute,
 }) {
   const [state, setState] = useState({ loading: true, error: "", profile: null, fortune: null, latest: null });
+
+  useEffect(() => {
+    trackHomeView(token, {
+      source: previousRoute || "direct",
+      isLogin: Boolean(token),
+    });
+  }, [token, previousRoute]);
 
   useEffect(() => {
     let active = true;
@@ -72,6 +81,13 @@ export default function HomePage({
       active = false;
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!token || !state.fortune?.fortuneDate) {
+      return;
+    }
+    trackFortuneView(token, { fortuneDate: state.fortune.fortuneDate });
+  }, [state.fortune, token]);
 
   if (state.loading) {
     return (
@@ -115,7 +131,14 @@ export default function HomePage({
 
       <Card title="今天想做什么">
         <div className="double-action">
-          <Button onClick={() => navigate("input")}>记录我的梦</Button>
+          <Button
+            onClick={() => {
+              trackDreamEntryClick(token, { fromPage: "home", pageName: "home" });
+              navigate("input");
+            }}
+          >
+            记录我的梦
+          </Button>
           <Button
             variant="secondary"
             onClick={() =>
@@ -159,7 +182,10 @@ export default function HomePage({
           title="你还没有记录过梦"
           description="第一个梦，会是认识自己的入口。"
           buttonText="现在去记录"
-          onAction={() => navigate("input")}
+          onAction={() => {
+            trackDreamEntryClick(token, { fromPage: "home", pageName: "home" });
+            navigate("input");
+          }}
         />
       )}
 

@@ -7,7 +7,7 @@ from decimal import Decimal
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
-from app.models import DailyFortune, DreamFollowup, DreamRecord, Feedback, Order, User
+from app.models import DailyFortune, DreamFollowup, DreamRecord, EventLog, Feedback, Order, User
 from app.services.content_generator import generate_base_interpretation
 from app.services.content_generator import generate_deep_interpretation
 from app.services.content_generator import generate_followup_interpretation
@@ -389,3 +389,24 @@ def create_feedback(
     )
     db.add(feedback)
     db.commit()
+
+
+def create_event_log(
+    db: Session,
+    user: User | None,
+    event_name: str,
+    page_name: str,
+    event_payload: dict | list | None,
+) -> int:
+    """保存前端埋点事件，便于后续做行为分析和漏斗统计。"""
+
+    event_log = EventLog(
+        user_id=user.id if user else None,
+        event_name=event_name,
+        page_name=page_name,
+        event_payload=event_payload,
+    )
+    db.add(event_log)
+    db.commit()
+    db.refresh(event_log)
+    return event_log.id

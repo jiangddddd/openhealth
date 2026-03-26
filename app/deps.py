@@ -36,3 +36,23 @@ def get_current_user(
     if not user or user.is_deleted:
         raise HTTPException(status_code=401, detail="User not found")
     return user
+
+
+def get_current_user_optional(
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """可选登录态解析，适合首页曝光等允许匿名上报的场景。"""
+
+    if not authorization:
+        return None
+
+    try:
+        user_id = _extract_user_id(authorization)
+    except HTTPException:
+        return None
+
+    user = db.get(User, user_id)
+    if not user or user.is_deleted:
+        return None
+    return user

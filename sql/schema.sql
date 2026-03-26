@@ -158,3 +158,16 @@ CREATE TABLE IF NOT EXISTS `prompt_logs` (
   CONSTRAINT `fk_prompt_logs_user_id`
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `event_logs` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NULL,
+  `event_name` VARCHAR(50) NOT NULL,
+  `page_name` VARCHAR(50) NOT NULL,
+  `event_payload` JSON NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_event_logs_user_id` (`user_id`),
+  CONSTRAINT `fk_event_logs_user_id`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

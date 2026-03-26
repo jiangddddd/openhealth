@@ -164,10 +164,12 @@ def get_dream(
 
     base_interpretation = _normalize_base_interpretation(_parse_payload(dream.base_interpretation))
     followup_question = None
+    followup_id = None
     followup_answer = None
     followup_interpretation = None
     if dream.followups:
         latest_followup = dream.followups[-1]
+        followup_id = latest_followup.id
         followup_question = latest_followup.followup_question
         followup_answer = latest_followup.user_answer
         followup_interpretation = _normalize_followup_interpretation(
@@ -183,6 +185,7 @@ def get_dream(
         "tags": dream.tags,
         "summary": dream.summary,
         "baseInterpretation": base_interpretation,
+        "followupId": followup_id,
         "followupQuestion": followup_question,
         "followupAnswer": followup_answer,
         "followupInterpretation": followup_interpretation,

@@ -12,7 +12,7 @@ from starlette.requests import Request
 from app.config import settings
 from app.database import Base, engine
 import app.models  # noqa: F401
-from app.routers import auth, dream, feedback, fortune, membership, order, user
+from app.routers import auth, dream, event, feedback, fortune, membership, order, user
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
@@ -41,6 +41,7 @@ app.include_router(fortune.router)
 app.include_router(membership.router)
 app.include_router(order.router)
 app.include_router(feedback.router)
+app.include_router(event.router)
 
 if (FRONTEND_DIST_DIR / "assets").exists():
     app.mount(

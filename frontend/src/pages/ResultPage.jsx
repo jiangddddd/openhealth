@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Button from "../components/Button.jsx";
 import Card from "../components/Card.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import { createFeedback, fetchDreamDetail, submitFollowup } from "../services/api.js";
+import {
+  trackDreamResultView,
+  trackFollowupResultView,
+  trackFollowupSubmit,
+} from "../services/tracker.js";
 
 function displayText(value) {
   if (value === null || value === undefined || value === "") {
@@ -92,6 +97,7 @@ export default function ResultPage({
     followupLoading: false,
     followupResult: null,
   });
+  const trackedFollowupIds = useRef(new Set());
 
   useEffect(() => {
     let active = true;
@@ -131,6 +137,30 @@ export default function ResultPage({
     };
   }, [selectedDreamId, token]);
 
+  useEffect(() => {
+    if (!token || !state.detail?.dreamRecordId) {
+      return;
+    }
+    trackDreamResultView(token, {
+      dreamRecordId: state.detail.dreamRecordId,
+    });
+  }, [state.detail?.dreamRecordId, token]);
+
+  useEffect(() => {
+    const followupId = state.detail?.followupId;
+    if (!token || !state.detail?.dreamRecordId || !followupId || !state.detail?.followupAnswer) {
+      return;
+    }
+    if (trackedFollowupIds.current.has(followupId)) {
+      return;
+    }
+    trackedFollowupIds.current.add(followupId);
+    trackFollowupResultView(token, {
+      dreamRecordId: state.detail.dreamRecordId,
+      followupId,
+    });
+  }, [state.detail, token]);
+
   if (state.loading) {
     return (
       <>
@@ -159,6 +189,7 @@ export default function ResultPage({
   const detail = state.detail;
   const base = detail.baseInterpretation || {};
   const hasFollowupAnswer = Boolean(detail.followupAnswer);
+  const hasFollowupResult = hasFollowupAnswer || Boolean(state.followupResult);
 
   const handleFollowup = async () => {
     if (!state.answer.trim()) {
@@ -168,17 +199,24 @@ export default function ResultPage({
 
     setState((prev) => ({ ...prev, followupLoading: true }));
     try {
+      const trimmedAnswer = state.answer.trim();
       const data = await submitFollowup(token, {
         dreamRecordId: Number(selectedDreamId),
         followupQuestion: detail.followupQuestion,
-        userAnswer: state.answer.trim(),
+        userAnswer: trimmedAnswer,
+      });
+      trackFollowupSubmit(token, {
+        dreamRecordId: Number(selectedDreamId),
+        followupId: data.followupId,
+        answerLength: trimmedAnswer.length,
       });
       setState((prev) => ({
         ...prev,
         followupLoading: false,
         detail: {
           ...prev.detail,
-          followupAnswer: state.answer.trim(),
+          followupId: data.followupId,
+          followupAnswer: trimmedAnswer,
           followupInterpretation: normalizeFollowupResult(data.followupInterpretation),
         },
         followupResult: normalizeFollowupResult(data.followupInterpretation),
@@ -278,7 +316,7 @@ export default function ResultPage({
               </Button>
             </>
           )}
-          {detail.followupInterpretation || state.followupResult ? (
+          {hasFollowupResult ? (
             <Card title="补充解析">
               <div className="result-grid">
                 <div className="result-item">

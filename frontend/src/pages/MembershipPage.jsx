@@ -5,12 +5,14 @@ import Card from "../components/Card.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import PageHeader from "../components/PageHeader.jsx";
 import { createOrder, fetchMembershipInfo, fetchOrder, fetchProfile } from "../services/api.js";
+import { trackMembershipView, trackPaymentClick, trackPaymentSuccess } from "../services/tracker.js";
 
 export default function MembershipPage({
   token,
   openLogin,
   showToast,
   logout,
+  previousRoute,
 }) {
   const [state, setState] = useState({
     loading: true,
@@ -38,6 +40,7 @@ export default function MembershipPage({
           fetchMembershipInfo(token),
         ]);
         if (active) {
+          trackMembershipView(token, { fromPage: previousRoute || "direct" });
           setState({
             loading: false,
             error: "",
@@ -58,7 +61,7 @@ export default function MembershipPage({
     return () => {
       active = false;
     };
-  }, [token]);
+  }, [previousRoute, token]);
 
   if (state.loading) {
     return (
@@ -87,12 +90,27 @@ export default function MembershipPage({
 
   const handleCreateOrder = async () => {
     try {
+      const selectedPlan = state.membership.plans.find((plan) => plan.planType === state.selectedPlan);
+      trackPaymentClick(token, {
+        productType: "membership",
+        planType: state.selectedPlan,
+        amount: selectedPlan?.price || null,
+        fromPage: "membership",
+      });
       const order = await createOrder(token, {
         productType: "membership",
         planType: state.selectedPlan,
         payChannel: "wechatpay",
       });
       const detail = await fetchOrder(token, order.orderId);
+      if (detail.payStatus === "paid") {
+        trackPaymentSuccess(token, {
+          orderId: order.orderId,
+          productType: "membership",
+          planType: state.selectedPlan,
+          amount: selectedPlan?.price || null,
+        });
+      }
       setState((prev) => ({
         ...prev,
         orderResult: {

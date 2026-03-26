@@ -84,3 +84,11 @@ export function createFeedback(token, payload) {
     body: JSON.stringify(payload),
   });
 }
+
+export function createEventLog(token = "", payload) {
+  return request("/api/event/create", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}

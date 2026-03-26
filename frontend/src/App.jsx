@@ -21,6 +21,7 @@ export default function App() {
   const [loginVisible, setLoginVisible] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [previousRoute, setPreviousRoute] = useState("");
 
   useEffect(() => {
     if (!toastMessage) {
@@ -29,6 +30,10 @@ export default function App() {
     const timer = window.setTimeout(() => setToastMessage(""), 2200);
     return () => window.clearTimeout(timer);
   }, [toastMessage]);
+
+  useEffect(() => {
+    setPreviousRoute(route);
+  }, [route]);
 
   const showToast = (message) => setToastMessage(message);
 
@@ -73,6 +78,8 @@ export default function App() {
     selectedDreamId,
     setSelectedDreamId,
     logout: handleLogout,
+    currentRoute: route,
+    previousRoute,
   };
 
   let pageNode = null;
