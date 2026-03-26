@@ -306,4 +306,4 @@ QWEN_API_KEY=你的真实 key
 
 当前项目仅作内部开发与学习使用。
 
-如有相关问题沟通，请联系jiang90744119@gmail.com
+如有相关问题沟通，请联系jiangtf390744119@gmail.com
