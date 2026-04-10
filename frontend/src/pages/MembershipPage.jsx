@@ -66,7 +66,7 @@ export default function MembershipPage({
   if (state.loading) {
     return (
       <>
-        <PageHeader title="我的 / 会员" description="把一次解梦，变成长期陪伴。" />
+        <PageHeader title="把一次记录，变成长期陪伴" description="连续记录、总结与趋势分析，会帮助你更清楚地看见自己的情绪模式与生活节奏。" />
         <Card>
           <p className="muted">会员信息加载中...</p>
         </Card>
@@ -77,11 +77,11 @@ export default function MembershipPage({
   if (state.error) {
     return (
       <>
-        <PageHeader title="我的 / 会员" description="把一次解梦，变成长期陪伴。" />
+        <PageHeader title="把一次记录，变成长期陪伴" description="连续记录、总结与趋势分析，会帮助你更清楚地看见自己的情绪模式与生活节奏。" />
         <EmptyState
-          title="登录后查看会员与档案"
-          description="你可以先登录，再查看会员权益、购买方案和个人记录概览。"
-          buttonText="现在去登录"
+          title="登录后查看完整陪伴"
+          description="先登录，再看看更完整的总结、趋势和长期记录能力。"
+          buttonText="先去登录"
           onAction={openLogin}
         />
       </>
@@ -118,7 +118,7 @@ export default function MembershipPage({
           payStatus: detail.payStatus,
         },
       }));
-      showToast("MVP 版已创建 mock 订单。");
+      showToast("已创建订单。离更完整的陪伴又近了一点。");
     } catch (error) {
       showToast(error.message);
     }
@@ -126,12 +126,21 @@ export default function MembershipPage({
 
   return (
     <>
-      <PageHeader title="我的 / 会员" description="把一次解梦，变成长期陪伴。" />
+      <PageHeader title="把一次记录，变成长期陪伴" description="连续记录、总结与趋势分析，会帮助你更清楚地看见自己的情绪模式与生活节奏。" />
 
-      <Card>
+      <Card className="membership-hero-card">
         <div className="stack">
-          <div className="badge">
-            {state.profile.membershipStatus === "pro" ? "当前 Pro 会员" : "当前免费用户"}
+          <div className="membership-hero-top">
+            <div>
+              <div className="section-eyebrow">长期陪伴</div>
+              <h3 className="section-title">
+                {state.profile.membershipStatus === "pro" ? "你已经开启更完整的陪伴" : "把一次记录，变成长期陪伴"}
+              </h3>
+              <p className="section-desc">当记录变多，你会更清楚地看见自己的情绪模式、生活节奏，以及那些反复出现的线索。</p>
+            </div>
+            <div className="badge">
+              {state.profile.membershipStatus === "pro" ? "当前 Pro 会员" : "当前免费用户"}
+            </div>
           </div>
           <div className="stats-grid">
             <div className="stat-box">
@@ -151,6 +160,7 @@ export default function MembershipPage({
       </Card>
 
       <Card title="Pro 可以为你解锁什么">
+        <p className="section-desc">不只是多一点内容，而是更持续、更有层次的理解和反馈。</p>
         <ul className="benefit-list">
           {state.membership.benefits.map((item) => (
             <li key={item}>{item}</li>
@@ -158,7 +168,8 @@ export default function MembershipPage({
         </ul>
       </Card>
 
-      <Card title="选择方案">
+      <Card title="选择方案" className="membership-plan-card">
+        <p className="section-desc">先选择一个适合自己的节奏，再决定是否继续长期记录。</p>
         <div className="stack">
           {state.membership.plans.map((plan, index) => (
             <article
@@ -175,7 +186,7 @@ export default function MembershipPage({
               </p>
             </article>
           ))}
-          <Button onClick={handleCreateOrder}>开通 Pro</Button>
+          <Button onClick={handleCreateOrder}>开通会员</Button>
           <Button variant="secondary" onClick={logout}>
             退出登录
           </Button>

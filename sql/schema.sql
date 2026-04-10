@@ -22,6 +22,34 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `uk_users_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `wechat_mini_accounts` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `app_id` VARCHAR(64) NULL,
+  `openid` VARCHAR(100) NOT NULL,
+  `unionid` VARCHAR(100) NULL,
+  `session_key` VARCHAR(255) NULL,
+  `session_key_updated_at` DATETIME NULL,
+  `nickname` VARCHAR(100) NULL,
+  `avatar_url` VARCHAR(500) NULL,
+  `gender` INT NULL,
+  `country` VARCHAR(100) NULL,
+  `province` VARCHAR(100) NULL,
+  `city` VARCHAR(100) NULL,
+  `language` VARCHAR(20) NULL,
+  `raw_session_data` JSON NULL,
+  `raw_user_info` JSON NULL,
+  `last_login_at` DATETIME NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_wechat_mini_accounts_app_openid` (`app_id`, `openid`),
+  KEY `ix_wechat_mini_accounts_user_id` (`user_id`),
+  KEY `ix_wechat_mini_accounts_unionid` (`unionid`),
+  CONSTRAINT `fk_wechat_mini_accounts_user_id`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `dream_records` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
@@ -85,6 +113,47 @@ CREATE TABLE IF NOT EXISTS `daily_fortunes` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_daily_fortunes_user_date` (`user_id`, `fortune_date`),
   CONSTRAINT `fk_daily_fortunes_user_id`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `mood_records` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `record_date` DATE NOT NULL,
+  `mood_type` VARCHAR(20) NOT NULL,
+  `mood_intensity` INT NOT NULL,
+  `mood_reason` VARCHAR(255) NULL,
+  `mood_tags` JSON NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_mood_records_user_id` (`user_id`),
+  KEY `idx_mood_records_user_date` (`user_id`, `record_date`),
+  KEY `idx_mood_records_user_mood_type` (`user_id`, `mood_type`),
+  CONSTRAINT `fk_mood_records_user_id`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `daily_summaries` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `summary_date` DATE NOT NULL,
+  `overall_status` TEXT NOT NULL,
+  `main_factors` TEXT NOT NULL,
+  `attention_point` TEXT NOT NULL,
+  `reminder` TEXT NOT NULL,
+  `diet_direction` TEXT NOT NULL,
+  `eat_more` JSON NULL,
+  `eat_less` JSON NULL,
+  `diet_tip` TEXT NOT NULL,
+  `source_snapshot` JSON NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'success',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_daily_summaries_user_id` (`user_id`),
+  KEY `idx_daily_summaries_user_date` (`user_id`, `summary_date`),
+  CONSTRAINT `fk_daily_summaries_user_id`
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -56,6 +56,21 @@ class DreamFollowupRequest(BaseModel):
     userAnswer: str = Field(min_length=1)
 
 
+class MoodCreateRequest(BaseModel):
+    """创建心情记录请求体。"""
+
+    moodType: Literal["开心", "平静", "焦虑", "疲惫", "难过", "烦躁", "迷茫"]
+    moodIntensity: int = Field(ge=1, le=5)
+    moodReason: str | None = Field(default=None, max_length=255)
+    moodTags: list[str] | None = None
+
+
+class SummaryGenerateRequest(BaseModel):
+    """生成今日总结请求体。"""
+
+    forceRegenerate: bool = False
+
+
 class OrderCreateRequest(BaseModel):
     """创建订单请求体。"""
 

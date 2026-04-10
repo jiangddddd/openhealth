@@ -61,6 +61,43 @@ export function fetchFortune(token) {
   return request("/api/fortune/today", token);
 }
 
+export function createMoodRecord(token, payload) {
+  return request("/api/mood/create", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchMoodToday(token) {
+  return request("/api/mood/today", token);
+}
+
+export function fetchMoodList(token, pageNo = 1, pageSize = 10, moodType = "") {
+  const filter = moodType ? `&moodType=${encodeURIComponent(moodType)}` : "";
+  return request(`/api/mood/list?pageNo=${pageNo}&pageSize=${pageSize}${filter}`, token);
+}
+
+export function generateSummary(token, payload = {}) {
+  return request("/api/summary/generate", token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchSummaryToday(token) {
+  return request("/api/summary/today", token);
+}
+
+export function fetchSummaryList(token, pageNo = 1, pageSize = 10) {
+  return request(`/api/summary/list?pageNo=${pageNo}&pageSize=${pageSize}`, token);
+}
+
+export function fetchHomeOverview(token) {
+  return request("/api/home/overview", token);
+}
+
 export function fetchMembershipInfo(token) {
   return request("/api/membership/info", token);
 }

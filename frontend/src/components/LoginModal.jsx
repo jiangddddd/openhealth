@@ -10,8 +10,8 @@ export default function LoginModal({ onSubmit, onClose, loading }) {
     <div className="modal-mask">
       <div className="modal-card stack">
         <div>
-          <h3 className="card-title">手机号登录</h3>
-          <p className="muted">MVP 版使用 mock 登录，验证码填任意 6 位即可。</p>
+          <h3 className="card-title">先登录，再开始记录</h3>
+          <p className="muted">这里会是你自己的记录空间。MVP 版使用 mock 登录，验证码填任意 6 位即可。</p>
         </div>
         <input
           className="input"
@@ -26,7 +26,7 @@ export default function LoginModal({ onSubmit, onClose, loading }) {
           onChange={(event) => setVerifyCode(event.target.value)}
         />
         <Button onClick={() => onSubmit({ mobile, verifyCode })} disabled={loading}>
-          {loading ? "登录中..." : "立即登录"}
+          {loading ? "登录中..." : "继续登录"}
         </Button>
         <Button variant="secondary" onClick={onClose}>
           稍后再说

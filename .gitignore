@@ -35,6 +35,8 @@ dist/
 Thumbs.db
 .idea/
 .vscode/
+.cursor/
+wechat-miniprogram/
 
 # Build / temp
 build/

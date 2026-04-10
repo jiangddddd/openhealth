@@ -4,7 +4,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import JSON, BigInteger, Boolean, Date, DateTime, ForeignKey, Numeric
+from sqlalchemy import JSON, BigInteger, Boolean, Date, DateTime, ForeignKey, Integer, Numeric
 from sqlalchemy import String, Text, UniqueConstraint, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -68,14 +68,48 @@ class User(Base, TimestampMixin):
         Boolean, nullable=False, server_default=text("0")
     )
 
+    wechat_mini_accounts: Mapped[list["WechatMiniAccount"]] = relationship(back_populates="user")
     dream_records: Mapped[list["DreamRecord"]] = relationship(back_populates="user")
     followups: Mapped[list["DreamFollowup"]] = relationship(back_populates="user")
     daily_fortunes: Mapped[list["DailyFortune"]] = relationship(back_populates="user")
+    mood_records: Mapped[list["MoodRecord"]] = relationship(back_populates="user")
+    daily_summaries: Mapped[list["DailySummary"]] = relationship(back_populates="user")
     memberships: Mapped[list["Membership"]] = relationship(back_populates="user")
     orders: Mapped[list["Order"]] = relationship(back_populates="user")
     feedbacks: Mapped[list["Feedback"]] = relationship(back_populates="user")
     prompt_logs: Mapped[list["PromptLog"]] = relationship(back_populates="user")
     event_logs: Mapped[list["EventLog"]] = relationship(back_populates="user")
+
+
+class WechatMiniAccount(Base, TimestampMixin):
+    """微信小程序账号表，保存 code2Session 结果和微信资料快照。"""
+
+    __tablename__ = "wechat_mini_accounts"
+    __table_args__ = (
+        UniqueConstraint("app_id", "openid", name="uq_wechat_mini_accounts_app_openid"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.id"), nullable=False, index=True
+    )
+    app_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    openid: Mapped[str] = mapped_column(String(100), nullable=False)
+    unionid: Mapped[str | None] = mapped_column(String(100), index=True)
+    session_key: Mapped[str | None] = mapped_column(String(255))
+    session_key_updated_at: Mapped[datetime | None] = mapped_column(DateTime)
+    nickname: Mapped[str | None] = mapped_column(String(100))
+    avatar_url: Mapped[str | None] = mapped_column(String(500))
+    gender: Mapped[int | None] = mapped_column(Integer)
+    country: Mapped[str | None] = mapped_column(String(100))
+    province: Mapped[str | None] = mapped_column(String(100))
+    city: Mapped[str | None] = mapped_column(String(100))
+    language: Mapped[str | None] = mapped_column(String(20))
+    raw_session_data: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    raw_user_info: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+    user: Mapped["User"] = relationship(back_populates="wechat_mini_accounts")
 
 
 class DreamRecord(Base, TimestampMixin):
@@ -180,6 +214,59 @@ class DailyFortune(Base, TimestampMixin):
     )
 
     user: Mapped["User"] = relationship(back_populates="daily_fortunes")
+
+
+class MoodRecord(Base, TimestampMixin):
+    """心情记录表，保存用户每次提交的主观情绪快照。"""
+
+    __tablename__ = "mood_records"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.id"), nullable=False, index=True
+    )
+    # 记录归属的自然日，便于按“今日状态”聚合查询。
+    record_date: Mapped[date] = mapped_column(Date, nullable=False)
+    # 当前主情绪，例如开心 / 焦虑 / 疲惫。
+    mood_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    # 情绪强度，范围 1~5。
+    mood_intensity: Mapped[int] = mapped_column(nullable=False)
+    # 一句话原因，帮助总结更贴近当天处境。
+    mood_reason: Mapped[str | None] = mapped_column(String(255))
+    # 原因标签，MVP 先用 JSON 保存。
+    mood_tags: Mapped[list[str] | None] = mapped_column(JSON)
+
+    user: Mapped["User"] = relationship(back_populates="mood_records")
+
+
+class DailySummary(Base, TimestampMixin):
+    """每日总结表，缓存每天生成的总结与饮食建议。"""
+
+    __tablename__ = "daily_summaries"
+    __table_args__ = (
+        UniqueConstraint("user_id", "summary_date", name="uq_user_summary_date"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.id"), nullable=False, index=True
+    )
+    summary_date: Mapped[date] = mapped_column(Date, nullable=False)
+    overall_status: Mapped[str] = mapped_column(Text, nullable=False)
+    main_factors: Mapped[str] = mapped_column(Text, nullable=False)
+    attention_point: Mapped[str] = mapped_column(Text, nullable=False)
+    reminder: Mapped[str] = mapped_column(Text, nullable=False)
+    diet_direction: Mapped[str] = mapped_column(Text, nullable=False)
+    eat_more: Mapped[list[str] | None] = mapped_column(JSON)
+    eat_less: Mapped[list[str] | None] = mapped_column(JSON)
+    diet_tip: Mapped[str] = mapped_column(Text, nullable=False)
+    # 保存生成总结时使用的关键上下文，便于排查与升级。
+    source_snapshot: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default=text("'success'")
+    )
+
+    user: Mapped["User"] = relationship(back_populates="daily_summaries")
 
 
 class Order(Base, TimestampMixin):

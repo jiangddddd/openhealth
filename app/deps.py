@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import User
+from app.services.auth_token import TokenValidationError, decode_access_token
 
 
 def get_db():
@@ -18,13 +19,11 @@ def _extract_user_id(authorization: str | None) -> int:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     token = authorization.removeprefix("Bearer ").strip()
-    if not token.startswith("token_"):
-        raise HTTPException(status_code=401, detail="Invalid token")
-
     try:
-        return int(token.removeprefix("token_"))
-    except ValueError as exc:
-        raise HTTPException(status_code=401, detail="Invalid token") from exc
+        payload = decode_access_token(token)
+        return int(payload["user_id"])
+    except TokenValidationError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
 def get_current_user(

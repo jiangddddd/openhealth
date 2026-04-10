@@ -105,6 +105,9 @@ copy .env.example .env
 ```env
 DATABASE_URL=mysql+pymysql://root:password@127.0.0.1:3306/dream_app?charset=utf8mb4
 AUTO_CREATE_TABLES=true
+AUTH_TOKEN_SECRET=please-change-this-in-production
+AUTH_TOKEN_EXPIRE_MINUTES=43200
+AUTH_TOKEN_ISSUER=mydream
 QWEN_API_KEY=
 QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 QWEN_MODEL=qwen-plus
@@ -116,6 +119,12 @@ QWEN_MODEL=qwen-plus
   - MySQL 连接地址
 - `AUTO_CREATE_TABLES`
   - 是否在后端启动时自动建表
+- `AUTH_TOKEN_SECRET`
+  - 访问令牌签名密钥，生产环境务必替换
+- `AUTH_TOKEN_EXPIRE_MINUTES`
+  - 访问令牌有效期，单位为分钟
+- `AUTH_TOKEN_ISSUER`
+  - 访问令牌签发方标识，用于校验来源
 - `QWEN_API_KEY`
   - DashScope 的 API Key
 - `QWEN_BASE_URL`

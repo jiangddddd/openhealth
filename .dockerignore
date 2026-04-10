@@ -1,0 +1,16 @@
+.git
+.cursor
+__pycache__
+*.py[cod]
+*$py.class
+.venv
+venv
+env
+.env
+*.md
+node_modules
+frontend
+frontend-english
+wechat-miniprogram
+sql
+*.sql

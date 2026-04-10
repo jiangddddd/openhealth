@@ -41,7 +41,6 @@ function normalizeList(value) {
       .replaceAll("，", ",")
       .replaceAll("、", ",")
       .replaceAll("；", ",")
-      .replaceAll(";", ",")
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean);
@@ -83,6 +82,20 @@ function normalizeDetail(detail) {
   };
 }
 
+function renderList(items, emptyText) {
+  if (!items.length) {
+    return <p className="muted">{emptyText}</p>;
+  }
+
+  return (
+    <ul className="note-bullet-list">
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
+}
+
 export default function ResultPage({
   token,
   selectedDreamId,
@@ -113,7 +126,6 @@ export default function ResultPage({
       try {
         const detail = await fetchDreamDetail(token, selectedDreamId);
         const normalizedDetail = normalizeDetail(detail);
-        console.log("dream detail response:", normalizedDetail);
         if (active) {
           setState({
             loading: false,
@@ -164,7 +176,10 @@ export default function ResultPage({
   if (state.loading) {
     return (
       <>
-        <PageHeader title="梦境解析结果" description="你的梦里正在传递怎样的信号？" />
+        <PageHeader
+          title="梦境笔记"
+          description="把这场梦整理成一篇能回看的内容，先读结论，再慢慢看它映射到你最近的状态。"
+        />
         <Card>
           <p className="muted">结果加载中...</p>
         </Card>
@@ -175,10 +190,13 @@ export default function ResultPage({
   if (state.error || !state.detail) {
     return (
       <>
-        <PageHeader title="梦境解析结果" description="你的梦里正在传递怎样的信号？" />
+        <PageHeader
+          title="梦境笔记"
+          description="把这场梦整理成一篇能回看的内容，先读结论，再慢慢看它映射到你最近的状态。"
+        />
         <EmptyState
-          title="还没有可展示的解析"
-          description={state.error || "先记录一个梦，结果页就会自动展示你的基础解读和追问。"}
+          title="还没有可展示的梦境笔记"
+          description={state.error || "先记录一场梦，系统会帮你整理标题、摘要、基础解读和追问。"}
           buttonText="去记录梦境"
           onAction={() => navigate("input")}
         />
@@ -190,10 +208,31 @@ export default function ResultPage({
   const base = detail.baseInterpretation || {};
   const hasFollowupAnswer = Boolean(detail.followupAnswer);
   const hasFollowupResult = hasFollowupAnswer || Boolean(state.followupResult);
+  const followupInterpretation = state.followupResult || detail.followupInterpretation;
+  const articleSections = [
+    {
+      title: "一句结论",
+      content: displayText(base.conclusion),
+      emphasis: true,
+    },
+    {
+      title: "梦里的信号",
+      content: displayText(base.symbols),
+    },
+    {
+      title: "它更像在映射什么",
+      content: displayText(base.mapping),
+      multiline: true,
+    },
+    {
+      title: "这个梦在提醒你",
+      content: displayText(base.reminder),
+    },
+  ];
 
   const handleFollowup = async () => {
     if (!state.answer.trim()) {
-      showToast("先写下你的回答。");
+      showToast("先写下此刻最真实的一点感受。");
       return;
     }
 
@@ -212,6 +251,7 @@ export default function ResultPage({
       });
       setState((prev) => ({
         ...prev,
+        answer: "",
         followupLoading: false,
         detail: {
           ...prev.detail,
@@ -233,9 +273,9 @@ export default function ResultPage({
         targetType: "dream",
         targetId: Number(selectedDreamId),
         feedbackType: "like",
-        content: "这次还挺像在说我的",
+        content: "这次解读挺像在说我。",
       });
-      showToast("已记录你的喜欢反馈。");
+      showToast("已经收到你的反馈。");
     } catch (error) {
       showToast(error.message);
     }
@@ -243,117 +283,181 @@ export default function ResultPage({
 
   return (
     <>
-      <PageHeader title={detail.autoTitle || "梦境解析结果"} description="你的梦里正在传递怎样的信号？" />
+      <PageHeader
+        title="梦境笔记"
+        description="像看一篇笔记一样回看这场梦，把它的线索、提醒和延伸都放在同一页里。"
+      />
 
-      <Card>
-        <div className="chip-row">
-          {(detail.tags || []).map((tag) => (
-            <span key={tag} className="chip active">
-              {tag}
-            </span>
-          ))}
-        </div>
-        <p className="small" style={{ marginTop: 12 }}>
-          记录时间：{detail.createdAt}
-        </p>
-        <div className="history-dream-text" style={{ marginTop: 12 }}>
-          {detail.dreamText || "未保存原文内容"}
-        </div>
-        <p className="muted">{detail.summary || ""}</p>
-      </Card>
+      <div className="note-detail-layout">
+        <div className="note-main-column">
+          <Card className="note-article-card">
+            <div className="note-article-head">
+              <div className="note-article-meta">
+                <span className="record-type-badge record-type-dream">梦境笔记</span>
+                <span className="small">{detail.createdAt || "刚刚更新"}</span>
+              </div>
+              <h2 className="note-article-title">
+                {detail.autoTitle || "这场梦正在提醒你一些最近没被说出口的情绪"}
+              </h2>
+              <p className="note-article-summary">
+                {detail.summary || "它不一定是在预示什么，更像是把你最近的情绪轮廓推到台前。"}
+              </p>
 
-      <Card title="基础解读">
-        <div className="result-grid">
-          <div className="result-item">
-            <h4>一句结论</h4>
-            <p>{displayText(base.conclusion)}</p>
-          </div>
-          <div className="result-item">
-            <h4>梦中象征</h4>
-            <p>{displayText(base.symbols)}</p>
-          </div>
-          <div className="result-item">
-            <h4>现实映射</h4>
-            <p style={{ whiteSpace: "pre-line" }}>{displayText(base.mapping)}</p>
-          </div>
-          <div className="result-item">
-            <h4>提醒</h4>
-            <p>{displayText(base.reminder)}</p>
-          </div>
-          <div className="result-item">
-            <h4>宜</h4>
-            <ul>{(base.goodFor || []).map((item) => <li key={item}>{item}</li>)}</ul>
-          </div>
-          <div className="result-item">
-            <h4>忌</h4>
-            <ul>{(base.avoidFor || []).map((item) => <li key={item}>{item}</li>)}</ul>
-          </div>
-        </div>
-      </Card>
-
-      <Card title="再问你一个问题">
-        <div className="stack">
-          <div className="result-item">
-            <h4>AI 追问</h4>
-            <p>{detail.followupQuestion || "这个梦最让你放不下的感觉，像不像现实里的某件事？"}</p>
-          </div>
-          {hasFollowupAnswer ? (
-            <div className="result-item">
-              <h4>你的回答</h4>
-              <p style={{ whiteSpace: "pre-line" }}>{displayText(detail.followupAnswer)}</p>
+              <div className="note-note-tags">
+                {(detail.tags || []).length ? (
+                  detail.tags.map((tag) => (
+                    <span key={tag} className="chip active">
+                      {tag}
+                    </span>
+                  ))
+                ) : (
+                  <span className="chip">等待生成标签</span>
+                )}
+              </div>
             </div>
-          ) : (
-            <>
-              <textarea
-                className="textarea"
-                style={{ minHeight: 120 }}
-                placeholder="写下你的回答，让这次解读更贴近你的真实状态。"
-                value={state.answer}
-                onChange={(event) => setState((prev) => ({ ...prev, answer: event.target.value }))}
-              />
-              <Button onClick={handleFollowup} disabled={state.followupLoading}>
-                {state.followupLoading ? "生成中..." : "生成补充解析"}
-              </Button>
-            </>
-          )}
-          {hasFollowupResult ? (
-            <Card title="补充解析">
-              <div className="result-grid">
-                <div className="result-item">
-                  <h4>更贴近你的状态</h4>
-                  <p style={{ whiteSpace: "pre-line" }}>
-                    {displayText((detail.followupInterpretation || state.followupResult).closerState)}
+
+            <div className="note-article-lead">
+              <span className="note-section-label">原始记录</span>
+              <p>{detail.dreamText || "这条梦境记录暂时没有原文内容。"}</p>
+            </div>
+
+            <div className="note-article-grid">
+              {articleSections.map((section) => (
+                <section
+                  key={section.title}
+                  className={`note-article-section ${section.emphasis ? "note-article-section-emphasis" : ""}`.trim()}
+                >
+                  <span className="note-section-label">{section.title}</span>
+                  <p style={section.multiline ? { whiteSpace: "pre-line" } : undefined}>
+                    {section.content}
                   </p>
-                </div>
-                <div className="result-item">
-                  <h4>更深一层的原因</h4>
-                  <p style={{ whiteSpace: "pre-line" }}>
-                    {displayText((detail.followupInterpretation || state.followupResult).deeperReason)}
-                  </p>
-                </div>
-                <div className="result-item">
-                  <h4>一个建议</h4>
-                  <p style={{ whiteSpace: "pre-line" }}>
-                    {displayText((detail.followupInterpretation || state.followupResult).suggestion)}
-                  </p>
+                </section>
+              ))}
+            </div>
+
+            <section className="note-article-section note-article-section-split">
+              <div>
+                <span className="note-section-label">今天适合</span>
+                {renderList(base.goodFor || [], "今天适合的方向还在整理中。")}
+              </div>
+              <div>
+                <span className="note-section-label">今天不太适合</span>
+                {renderList(base.avoidFor || [], "今天暂时没有明显需要避开的提醒。")}
+              </div>
+            </section>
+          </Card>
+
+          <Card className="note-followup-card">
+            <div className="note-followup-head">
+              <div>
+                <span className="note-section-label">继续往下看</span>
+                <h3 className="section-title">这条追问会让解读更贴近你当下的处境</h3>
+              </div>
+              <span className="small">{hasFollowupAnswer ? "已完成补充" : "等待你的回答"}</span>
+            </div>
+
+            <div className="note-followup-question">
+              <span className="note-section-label">AI 追问</span>
+              <p>
+                {detail.followupQuestion ||
+                  "这个梦最让你放不下的感觉，像不像现实里某件还没真正处理完的事？"}
+              </p>
+            </div>
+
+            {hasFollowupAnswer ? (
+              <div className="note-followup-answer">
+                <span className="note-section-label">你的回答</span>
+                <p style={{ whiteSpace: "pre-line" }}>{displayText(detail.followupAnswer)}</p>
+              </div>
+            ) : (
+              <div className="note-followup-form">
+                <textarea
+                  className="textarea"
+                  style={{ minHeight: 132 }}
+                  placeholder="最近现实里最让你放不下的情绪，或者一直挂在心上的那件事，写下来就可以。"
+                  value={state.answer}
+                  onChange={(event) => setState((prev) => ({ ...prev, answer: event.target.value }))}
+                />
+                <div className="note-action-row">
+                  <Button onClick={handleFollowup} disabled={state.followupLoading}>
+                    {state.followupLoading ? "生成中..." : "生成补充解读"}
+                  </Button>
                 </div>
               </div>
-            </Card>
-          ) : null}
-        </div>
-      </Card>
+            )}
 
-      <Card title="继续解锁更完整解读">
-        <p className="muted">
-          深度版会补充情绪根源、内在课题和更完整的行动建议，适合持续记录的用户。
-        </p>
-        <div className="inline-actions">
-          <Button onClick={() => navigate("membership")}>去会员页看看</Button>
-          <Button variant="secondary" onClick={handleLike}>
-            喜欢这次解读
-          </Button>
+            {hasFollowupResult ? (
+              <div className="note-followup-grid">
+                <article className="note-followup-panel">
+                  <span className="note-section-label">更贴近你的状态</span>
+                  <p style={{ whiteSpace: "pre-line" }}>{followupInterpretation.closerState}</p>
+                </article>
+                <article className="note-followup-panel">
+                  <span className="note-section-label">更深一层的原因</span>
+                  <p style={{ whiteSpace: "pre-line" }}>{followupInterpretation.deeperReason}</p>
+                </article>
+                <article className="note-followup-panel">
+                  <span className="note-section-label">接下来可以做什么</span>
+                  <p style={{ whiteSpace: "pre-line" }}>{followupInterpretation.suggestion}</p>
+                </article>
+              </div>
+            ) : null}
+          </Card>
         </div>
-      </Card>
+
+        <aside className="note-side-column">
+          <Card className="note-side-card">
+            <span className="note-side-label">这篇笔记的重点</span>
+            <h3>{detail.summary || "今天更适合先看清自己的情绪，再做下一步判断。"}</h3>
+            <p className="muted">
+              这不是一次一次性的结果页，而是一条可以回看、继续补充和继续延展的梦境笔记。
+            </p>
+
+            <div className="note-side-stats">
+              <div className="note-side-stat">
+                <span>标签数</span>
+                <strong>{detail.tags?.length || 0}</strong>
+              </div>
+              <div className="note-side-stat">
+                <span>追问状态</span>
+                <strong>{hasFollowupAnswer ? "已补充" : "待补充"}</strong>
+              </div>
+            </div>
+
+            <div className="note-side-tags">
+              {(detail.tags || []).length ? (
+                detail.tags.map((tag) => <span key={tag}>{tag}</span>)
+              ) : (
+                <span>等待生成标签</span>
+              )}
+            </div>
+
+            <div className="note-action-stack">
+              <Button onClick={() => navigate("membership")}>解锁深度解析</Button>
+              <Button variant="secondary" onClick={handleLike}>
+                喜欢这次解读
+              </Button>
+            </div>
+          </Card>
+
+          <Card className="note-side-card">
+            <span className="note-side-label">继续浏览</span>
+            <h3>把今天的记录继续补完整</h3>
+            <p className="muted">
+              你可以继续记录新的梦境，或者回到历史页，把最近几次的情绪线索串在一起看。
+            </p>
+
+            <div className="note-action-stack">
+              <Button variant="secondary" onClick={() => navigate("input")}>
+                再记一场梦
+              </Button>
+              <Button variant="secondary" onClick={() => navigate("history")}>
+                查看历史记录
+              </Button>
+            </div>
+          </Card>
+        </aside>
+      </div>
     </>
   );
 }

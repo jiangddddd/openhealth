@@ -5,8 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "vite --config vite.config.js",
+    "dev:english": "npm --prefix frontend-english run dev",
     "build": "vite build --config vite.config.js",
-    "preview": "vite preview --config vite.config.js"
+    "build:english": "npm --prefix frontend-english run build",
+    "preview": "vite preview --config vite.config.js",
+    "preview:english": "npm --prefix frontend-english run preview"
   },
   "keywords": [],
   "author": "",

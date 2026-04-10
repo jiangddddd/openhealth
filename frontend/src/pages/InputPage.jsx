@@ -50,7 +50,7 @@ export default function InputPage({
         hasSymbols: symbols.length > 0,
       });
       setSelectedDreamId(String(data.dreamRecordId));
-      showToast("解析完成，正在进入结果页。");
+      showToast("已记录。现在，去看看这个梦更像在提醒你什么。");
       navigate("result");
     } catch (error) {
       showToast(error.message);
@@ -64,24 +64,24 @@ export default function InputPage({
         <div className="loading-overlay">
           <div className="loading-overlay-card">
             <div className="loading-spinner loading-spinner-large" aria-hidden="true" />
-            <div className="loading-overlay-title">AI 正在解析你的梦境</div>
+            <div className="loading-overlay-title">正在整理这场梦的线索</div>
             <div className="loading-overlay-desc">
-              正在提取梦里的线索、情绪和象征含义，请稍等一下，别着急。
+              正在提取梦里的画面、情绪和象征含义，请稍等一下，不用着急。
             </div>
             <div className="loading-progress">
               <div className="loading-progress-bar" />
             </div>
-            <div className="loading-progress-text">正在生成你的专属解读...</div>
+            <div className="loading-progress-text">正在生成更贴近你当下状态的解读...</div>
           </div>
         </div>
       ) : null}
       <PageHeader
-        title="记录梦境"
-        description="尽量写下你记得的细节，比如人物、地点、感受和发生了什么。"
+        title="记下你刚刚做的梦"
+        description="不用写得很完整。把你记得的画面、人物和感受留下来就好。"
       />
       <Card title="梦境内容">
         <label className="field-label" htmlFor="dream-text">
-          写下你刚刚做的梦
+          把你记得的梦写下来
         </label>
         <textarea
           id="dream-text"
@@ -91,18 +91,18 @@ export default function InputPage({
           onChange={(event) => setDreamText(event.target.value)}
         />
         <div className="helper-text">
-          你的记录会用于生成更贴近状态的解读，这更像一次自我探索，而不是绝对判断。
+          我们会根据你的记录，整理出更贴近你当下状态的梦境解读。
         </div>
       </Card>
 
-      <Card title="补充一点信息，解读会更准确">
+      <Card title="补充一点细节，解读会更贴近你">
         <div className="stack">
           <div>
-            <p className="field-label">醒来后的感觉</p>
+            <p className="field-label">醒来后，你最明显的感觉是？</p>
             <TagSelector options={emotionOptions} value={emotion} onChange={setEmotion} />
           </div>
           <div>
-            <p className="field-label">梦里出现的人</p>
+            <p className="field-label">梦里有没有特别明显的人？</p>
             <TagSelector
               options={peopleOptions}
               value={people}
@@ -112,7 +112,7 @@ export default function InputPage({
             />
           </div>
           <div>
-            <p className="field-label">最深的画面</p>
+            <p className="field-label">梦里最深的画面是什么？</p>
             <TagSelector
               options={symbolOptions}
               value={symbols}
