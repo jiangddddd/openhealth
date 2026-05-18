@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.crud import create_event_log
-from app.deps import get_current_user_optional, get_db
+from app.core.deps import get_current_user_optional, get_db
 from app.models import User
 from app.schemas import ApiResponse, EventLogCreateRequest
 

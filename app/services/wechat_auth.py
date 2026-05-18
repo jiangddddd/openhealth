@@ -7,7 +7,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from app.config import settings
+from app.core.config import settings
 
 
 WECHAT_CODE2SESSION_URL = "https://api.weixin.qq.com/sns/jscode2session"

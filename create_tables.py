@@ -1,4 +1,4 @@
-from app.database import Base, engine
+from app.core.database import Base, engine
 import app.models  # noqa: F401
 
 

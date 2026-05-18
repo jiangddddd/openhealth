@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.crud import create_order, get_order_detail
-from app.deps import get_current_user, get_db
+from app.core.deps import get_current_user, get_db
 from app.models import User
 from app.schemas import ApiResponse, OrderCreateRequest
 

@@ -162,6 +162,12 @@ export default function App() {
         <LoginModal onSubmit={handleLogin} onClose={closeLogin} loading={loginLoading} />
       ) : null}
       <Toast message={toastMessage} />
+
+      <div className="app-footer">
+        <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">
+          粤ICP备2024195575号-3
+        </a>
+      </div>
     </>
   );
 }

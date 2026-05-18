@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.crud import create_dream_interpretation, delete_dream, get_dream_detail
 from app.crud import list_dreams, submit_followup
-from app.deps import get_current_user, get_db
+from app.core.deps import get_current_user, get_db
 from app.models import User
 from app.schemas import ApiResponse, DreamDeleteRequest, DreamFollowupRequest
 from app.schemas import DreamInterpretRequest

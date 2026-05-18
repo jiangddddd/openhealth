@@ -705,13 +705,13 @@ def get_membership_info(user: User) -> dict:
             {
                 "planType": "monthly",
                 "planName": "月度 Pro",
-                "price": "28.00",
+                "price": "1.00",
                 "currency": "CNY",
             },
             {
                 "planType": "yearly",
                 "planName": "年度 Pro",
-                "price": "168.00",
+                "price": "10.00",
                 "currency": "CNY",
             },
         ],
@@ -729,7 +729,7 @@ def create_order(
     """创建会员订单，当前返回 mock 支付参数。"""
 
     now = datetime.now()
-    amount = Decimal("28.00") if plan_type == "monthly" else Decimal("168.00")
+    amount = Decimal("1.00") if plan_type == "monthly" else Decimal("10.00")
     product_name = "月度 Pro" if plan_type == "monthly" else "年度 Pro"
     order_no = f"ORD{now.strftime('%Y%m%d%H%M%S')}{user.id}"
     order = Order(

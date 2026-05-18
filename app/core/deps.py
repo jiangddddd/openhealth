@@ -1,7 +1,7 @@
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
+from app.core.database import SessionLocal
 from app.models import User
 from app.services.auth_token import TokenValidationError, decode_access_token
 

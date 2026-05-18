@@ -7,7 +7,7 @@ import hmac
 import json
 from typing import Any
 
-from app.config import settings
+from app.core.config import settings
 
 
 ACCESS_TOKEN_TYPE = "access"

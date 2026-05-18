@@ -33,8 +33,8 @@ function AtlasHomeSection({
       <div className="atlas-home-inner">
         <div className="atlas-home-copy">
           <div className="atlas-home-lockup">
-            <span className="atlas-home-tagline">梦境与情绪日志</span>
-            <span className="atlas-home-name">MYDREAM</span>
+            <span className="atlas-home-tagline">我的心情日志</span>
+            <span className="atlas-home-name">我的心情日志</span>
           </div>
 
           <div className="atlas-home-meta">
@@ -62,7 +62,7 @@ function AtlasHomeSection({
 
         <div className="atlas-home-scene" aria-hidden="true">
           <div className="atlas-home-scene-kicker">Dream. Mood. Trace.</div>
-          <div className="atlas-home-scene-word">MYDREAM</div>
+          <div className="atlas-home-scene-word">我的心情日志</div>
 
           <div className="atlas-home-signal-list">
             {signalItems.map((item) => (
@@ -108,6 +108,7 @@ function AtlasHomeSection({
           ))}
         </div>
       ) : null}
+
     </section>
   );
 }

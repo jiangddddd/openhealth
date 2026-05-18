@@ -6,8 +6,8 @@ from typing import Any
 
 from openai import OpenAI
 
-from app.config import settings
-from app.database import SessionLocal
+from app.core.config import settings
+from app.core.database import SessionLocal
 from app.models import PromptLog
 
 logger = logging.getLogger(__name__)

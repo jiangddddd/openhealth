@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.crud import create_or_login_user, create_or_login_user_by_wechat
-from app.deps import get_db
+from app.core.deps import get_db
 from app.schemas import ApiResponse, LoginRequest
 from app.services.auth_token import create_access_token
 from app.services.wechat_auth import exchange_wechat_code

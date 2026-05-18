@@ -9,8 +9,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 
-from app.config import settings
-from app.database import Base, engine
+from app.core.config import settings
+from app.core.database import Base, engine
 import app.models  # noqa: F401
 from app.routers import auth, dream, event, feedback, fortune, home, membership, mood
 from app.routers import order, summary, user

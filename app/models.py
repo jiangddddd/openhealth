@@ -8,7 +8,7 @@ from sqlalchemy import JSON, BigInteger, Boolean, Date, DateTime, ForeignKey, In
 from sqlalchemy import String, Text, UniqueConstraint, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.core.database import Base
 
 
 class TimestampMixin:

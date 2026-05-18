@@ -1,9 +1,9 @@
 const items = [
-  { key: "dashboard", label: "Dashboard", tag: "01" },
-  { key: "journal", label: "Journal", tag: "02" },
-  { key: "trend", label: "Trends", tag: "03" },
-  { key: "history", label: "History", tag: "04" },
-  { key: "membership", label: "Account", tag: "05" },
+  { key: "dashboard", label: "Dashboard", tag: "Now" },
+  { key: "journal", label: "Logbook", tag: "Log" },
+  { key: "trend", label: "Trends", tag: "Map" },
+  { key: "history", label: "Archive", tag: "Past" },
+  { key: "membership", label: "Account", tag: "Me" },
 ];
 
 export default function BottomNav({ current, onNavigate }) {

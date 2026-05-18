@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.crud import create_mood_record, get_today_mood_record, list_mood_records
-from app.deps import get_current_user, get_db
+from app.core.deps import get_current_user, get_db
 from app.models import User
 from app.schemas import ApiResponse, MoodCreateRequest
 
